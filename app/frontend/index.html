@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Pipeline</title>
+    <script>
+        // Cache-bust by appending the current timestamp
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `css/styles.css?v=${new Date().getTime()}`;
+        document.head.appendChild(link);
+    </script>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <div class="title-wrap">
+                <h1><i class="fas fa-rocket"></i> Social Media Content Pipeline</h1>
+                <p class="subtitle">Generate visuals and captions, preview them live, then schedule to Google Drive & Calendar.</p>
+            </div>
+            <div class="header-actions">
+                <button id="help-btn" class="ghost-btn"><i class="fas fa-question-circle"></i> Help</button>
+            </div>
+        </header>
+
+        <main class="grid">
+            <section class="left">
+                <div class="input-form card">
+                    <label for="prompt-input" class="label">Describe your content idea</label>
+                    <textarea id="prompt-input" placeholder="Describe your social media content idea...">A social media post about productivity</textarea>
+
+                    <div class="controls">
+                        <select id="post-type-select">
+                            <option value="static">Static Post</option>
+                            <option value="carousel_2">Carousel 2</option>
+                            <option value="carousel_3">Carousel 3</option>
+                            <option value="carousel_4">Carousel 4</option>
+                            <option value="carousel_5">Carousel 5</option>
+                            <option value="carousel_6">Carousel 6</option>
+                            <option value="carousel_7">Carousel 7</option>
+                            <option value="carousel_8">Carousel 8</option>
+                            <option value="carousel_9">Carousel 9</option>
+                            <option value="carousel_10">Carousel 10</option>
+                            <option value="video">Video (VEO 3)</option>
+                        </select>
+                        <button id="generate-btn"><i class="fas fa-magic"></i> Generate</button>
+                    </div>
+
+                    <div id="loading-indicator" class="hidden">Generating your content...</div>
+                    <div id="error-message" class="hidden"></div>
+                </div>
+
+                <div id="schedule-section" class="card hidden">
+                    <h2><i class="fas fa-calendar-check"></i> Schedule</h2>
+                    <p class="muted">Select generated media and caption, then schedule the post to Google Calendar.&nbsp;All times are stored as UTC.</p>
+
+                    <h3><i class="fas fa-photo-video"></i> Media (Select 1 or more)</h3>
+                    <div id="media-selection"></div>
+
+                    <h3><i class="fas fa-comment-dots"></i> Caption (Select 1)</h3>
+                    <div id="caption-selection"></div>
+
+                    <div class="schedule-controls">
+                        <div style="flex:1; display:flex; gap:8px; align-items:center;">
+                            <label for="schedule-time"><i class="fas fa-clock"></i> Time (local):</label>
+                            <input type="datetime-local" id="schedule-time" />
+                        </div>
+                        <div style="width:220px; display:flex; gap:8px; align-items:center;">
+                            <label for="timezone-select"><i class="fas fa-globe"></i> Timezone:</label>
+                            <select id="timezone-select">
+                                <option value="Asia/Kolkata" selected>Asia/Kolkata (IST)</option>
+                                <option value="UTC">UTC</option>
+                                <option value="America/New_York">America/New_York (EST)</option>
+                                <option value="Europe/London">Europe/London (GMT)</option>
+                                <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+                            </select>
+                        </div>
+                        <button id="schedule-btn"><i class="fas fa-paper-plane"></i> Schedule Post</button>
+                    </div>
+                    <div id="schedule-status" class="hidden"></div>
+                </div>
+            </section>
+
+            <aside class="right">
+                <div class="preview card">
+                    <h2><i class="fas fa-eye"></i> Live Preview</h2>
+                    <p class="muted">Preview generated images and captions here. Click a media tile to select it for scheduling.</p>
+
+                    <div id="preview-media" class="preview-media">
+                        <!-- Generated images will be shown here by JS -->
+                    </div>
+
+                    <div id="preview-captions" class="preview-captions">
+                        <!-- Captions will be shown here by JS -->
+                    </div>
+                </div>
+
+                <div class="tips card">
+                    <h3>Tips</h3>
+                    <ul>
+                        <li>Use concise prompts for clearer visuals.</li>
+                        <li>For carousels, request 3-6 slides to tell a story.</li>
+                        <li>Schedule posts in UTC to avoid timezone confusion.</li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
+    </div>
+    <script src="js/api.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+</body>
+</html>
