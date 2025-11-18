@@ -4,6 +4,8 @@ __pycache__/
 *$py.class
 *.so
 .Python
+*.pyo
+*.pyd
 build/
 develop-eggs/
 dist/
@@ -22,12 +24,23 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.pytest_cache/
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.nox/
+.tox/
+.cache/
+htmlcov/
+.coverage
+coverage.xml
 
 # Virtual Environment
 venv/
 ENV/
 env/
 .venv
+.python-version
 
 # IDE
 .vscode/
@@ -36,11 +49,19 @@ env/
 *.swo
 *~
 .DS_Store
+.vs/
 
 # Environment variables and secrets
 .env
+*.env
+.env.*
+!.env.example
 credentials.json
 token.json
+*.pem
+*.key
+*.crt
+.envrc
 
 # Database
 *.db
@@ -56,10 +77,18 @@ app/frontend/temp_generated_images/
 app/frontend/temp_generated_videos/
 *.tmp
 *.bak
+*.orig
+*.rej
+*.patch
 
 # OS
 Thumbs.db
 .DS_Store
+desktop.ini
+ehthumbs.db
+
+# Notebooks
+.ipynb_checkpoints/
 
 # Project specific
 # Keep .env.example for reference
