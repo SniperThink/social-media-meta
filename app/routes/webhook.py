@@ -272,8 +272,8 @@ def webhook_schedule(req: schemas.WebhookRequest):
     webhook_sent = False
     webhook_status = None
     try:
-        if not settings.FACEBOOK_PAGE_ACCESS_TOKEN or not settings.INSTAGRAM_USER_ID:
-            raise RuntimeError("Facebook Graph API credentials not configured (FACEBOOK_PAGE_ACCESS_TOKEN / INSTAGRAM_USER_ID)")
+        if not settings.FACEBOOK_PAGE_ACCESS_TOKEN:
+            raise RuntimeError("Facebook Graph API credentials not configured (FACEBOOK_PAGE_ACCESS_TOKEN)")
 
         if publish_type == 'video':
             success, status = facebook_graph.publish_video(publish_source, req.selected_caption)
@@ -368,7 +368,7 @@ def create_carousel_webhook_endpoint(num_images: int):
                 pass
             raise HTTPException(status_code=502, detail=f"Calendar event creation failed: {e}")
 
-        # 4) Prepare Instagram-ready public URLs
+    # 4) Prepare Instagram-ready public URLs
         public_urls = []
         temp_r2_files = []
 
@@ -507,8 +507,8 @@ def create_carousel_webhook_endpoint(num_images: int):
         webhook_sent = False
         webhook_status = None
         try:
-            if not settings.FACEBOOK_PAGE_ACCESS_TOKEN or not settings.INSTAGRAM_USER_ID:
-                raise RuntimeError("Facebook Graph API credentials not configured (FACEBOOK_PAGE_ACCESS_TOKEN / INSTAGRAM_USER_ID)")
+            if not settings.FACEBOOK_PAGE_ACCESS_TOKEN:
+                raise RuntimeError("Facebook Graph API credentials not configured (FACEBOOK_PAGE_ACCESS_TOKEN)")
             success, status = facebook_graph.publish_carousel(public_urls, req.selected_caption)
             webhook_sent = bool(success)
             webhook_status = status

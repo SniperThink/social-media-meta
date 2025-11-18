@@ -127,8 +127,9 @@ d:/SniperThinkProjects/Social Media Automation/
      GOOGLE_STUDIO_API_KEY=your_google_ai_api_key
      
      # Facebook/Instagram Graph API
-     FACEBOOK_PAGE_ACCESS_TOKEN=your_page_access_token
-     INSTAGRAM_USER_ID=your_instagram_business_account_id
+  FACEBOOK_PAGE_ACCESS_TOKEN=your_page_access_token
+  # Optional (auto-resolved from token if omitted):
+  # INSTAGRAM_USER_ID=your_instagram_business_account_id
      FACEBOOK_GRAPH_API_VERSION=v17.0
      
      # System prompts for AI generation
@@ -164,7 +165,8 @@ d:/SniperThinkProjects/Social Media Automation/
 All settings are managed via `app/config.py` using Pydantic. Key configs:
 
 - **Google OAuth**: `credentials.json` and `token.json` for Drive/Calendar.
-- **Facebook/Instagram**: `FACEBOOK_PAGE_ACCESS_TOKEN` and `INSTAGRAM_USER_ID` for Graph API publishing.
+- **Facebook/Instagram**: `FACEBOOK_PAGE_ACCESS_TOKEN` for Graph API publishing.
+  - `INSTAGRAM_USER_ID` is optional; the app will resolve the linked Instagram Business account ID from the Page access token. Set it explicitly only if auto-resolution fails.
 - **AI Prompts**: Customize in `.env` for different post types.
 - **Storage**: R2 settings for media uploads (optional but recommended).
 - **Database**: Full URL for Postgres.
@@ -212,7 +214,7 @@ Full API docs available at `/docs` (Swagger UI).
 - **R2 Uploads Fail**: Confirm R2 credentials and bucket permissions.
 - **Instagram Publishing Fails**: 
   - Verify `FACEBOOK_PAGE_ACCESS_TOKEN` is valid and has required permissions.
-  - Ensure `INSTAGRAM_USER_ID` is correct (Business/Creator account ID, not Page ID).
+  - If auto-resolving the Instagram account ID fails, set `INSTAGRAM_USER_ID` manually (Business/Creator account ID, not Page ID).
   - Check that media URLs are publicly accessible (Graph API needs to download them).
   - For videos, ensure they meet Instagram requirements (format, duration, size).
 - **Frontend Not Loading**: Ensure static files are mounted; check browser console.

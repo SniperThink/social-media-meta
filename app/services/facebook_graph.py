@@ -4,12 +4,19 @@ Minimal Facebook Graph API helper for publishing Instagram content.
 This module provides helpers to publish single-image posts, carousels, and videos
 to an Instagram Business/Creator account via the Facebook Graph API.
 
-Note: The app must provide `FACEBOOK_PAGE_ACCESS_TOKEN` and `INSTAGRAM_USER_ID`
-in its environment (`.env` -> `app.config.settings`).
+Credentials:
+ - Required: `FACEBOOK_PAGE_ACCESS_TOKEN`
+ - Optional: `INSTAGRAM_USER_ID` (if omitted, we resolve it once from the token)
+
+If `INSTAGRAM_USER_ID` is not set, we call Graph API with the Page access token to
+resolve the linked `instagram_business_account.id` and cache it for this process.
 """
 from typing import List, Tuple, Optional
 import requests
 from app.config import settings
+
+# Cache for resolved IG user id when not provided explicitly via settings
+_CACHED_IG_USER_ID: Optional[str] = None
 
 
 def _graph_url(path: str) -> str:
@@ -40,15 +47,57 @@ def _video_post(path: str, data: dict, timeout: int = 60) -> dict:
         return {"status_code": resp.status_code, "json": None, "text": resp.text}
 
 
+def _resolve_ig_user_id() -> Optional[str]:
+    """Return the Instagram Business/Creator account ID for the current token.
+
+    Order of resolution:
+      1) If settings.INSTAGRAM_USER_ID is set, use it
+      2) If cached value exists, use it
+      3) Query Graph: GET /me?fields=instagram_business_account{id}
+
+    Note: This assumes `FACEBOOK_PAGE_ACCESS_TOKEN` is a Page access token
+    for a Page linked to the target Instagram professional account.
+    """
+    global _CACHED_IG_USER_ID
+    if settings.INSTAGRAM_USER_ID:
+        return settings.INSTAGRAM_USER_ID
+    if _CACHED_IG_USER_ID:
+        return _CACHED_IG_USER_ID
+
+    token = settings.FACEBOOK_PAGE_ACCESS_TOKEN
+    if not token:
+        return None
+
+    version = settings.FACEBOOK_GRAPH_API_VERSION or "v17.0"
+    url = f"https://graph.facebook.com/{version}/me"
+    try:
+        resp = requests.get(url, params={
+            "fields": "instagram_business_account{id}",
+            "access_token": token,
+        }, timeout=15)
+        data = resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {}
+        ig_biz = (data or {}).get("instagram_business_account") or {}
+        ig_id = ig_biz.get("id")
+        if ig_id:
+            _CACHED_IG_USER_ID = ig_id
+            return ig_id
+    except Exception:
+        pass
+
+    return None
+
+
 def publish_photo(image_url: str, caption: str) -> Tuple[bool, str]:
     """Publish a single photo to Instagram using the Graph API.
 
     Returns: (success, status_message)
     """
     token = settings.FACEBOOK_PAGE_ACCESS_TOKEN
-    ig_user = settings.INSTAGRAM_USER_ID
-    if not token or not ig_user:
-        return False, "Facebook/Instagram credentials not configured"
+    ig_user = _resolve_ig_user_id()
+    if not token:
+        return False, "Facebook access token not configured"
+    if not ig_user:
+        return False, "Could not resolve Instagram user ID from access token (is the Page linked to an Instagram professional account?)"
 
     # Step 1: create media container
     data = {
@@ -80,9 +129,11 @@ def publish_carousel(image_urls: List[str], caption: str) -> Tuple[bool, str]:
       - publish it
     """
     token = settings.FACEBOOK_PAGE_ACCESS_TOKEN
-    ig_user = settings.INSTAGRAM_USER_ID
-    if not token or not ig_user:
-        return False, "Facebook/Instagram credentials not configured"
+    ig_user = _resolve_ig_user_id()
+    if not token:
+        return False, "Facebook access token not configured"
+    if not ig_user:
+        return False, "Could not resolve Instagram user ID from access token (is the Page linked to an Instagram professional account?)"
 
     child_ids = []
     for url in image_urls:
@@ -118,9 +169,11 @@ def publish_video(video_url: str, caption: str) -> Tuple[bool, str]:
     Note: video publishing may take longer; this helper performs the basic create+publish flow.
     """
     token = settings.FACEBOOK_PAGE_ACCESS_TOKEN
-    ig_user = settings.INSTAGRAM_USER_ID
-    if not token or not ig_user:
-        return False, "Facebook/Instagram credentials not configured"
+    ig_user = _resolve_ig_user_id()
+    if not token:
+        return False, "Facebook access token not configured"
+    if not ig_user:
+        return False, "Could not resolve Instagram user ID from access token (is the Page linked to an Instagram professional account?)"
 
     # Create video container via graph-video host
     data = {"video_url": video_url, "caption": caption, "access_token": token}
